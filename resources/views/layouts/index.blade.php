@@ -36,7 +36,7 @@ h3 {
     <!-- Sección de bienvenida -->
     <div class="row mb-4">
         <div class="col-md-12 text-center">
-            <h1 class="display-4">Bienvenido a la Aplicación de Inventariado</h1>
+            <h1 class="display-4">Bienvenido a la Aplicación de Inventariado AMC</h1>
             <p class="lead">Gestiona fácilmente tus almacenes, productos, movimientos de inventario, categorías y proveedores.</p>
         </div>
     </div>

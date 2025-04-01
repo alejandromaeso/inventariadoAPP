@@ -24,7 +24,7 @@
                 <td>{{ $almacen->ubicacion }}</td>
                 <td>
                     <a href="{{ route('productos.show', $almacen->id) }}" class="btn btn-info">Ver Productos</a>
-
+                    <a href="{{ route('almacenes.edit', $almacen->id) }}" class="btn btn-warning">Editar Almacén</a>
                     <form action="{{ route('almacenes.destroy', $almacen->id) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('¿Estás seguro de eliminar este almacén?');">
                         @csrf
                         @method('DELETE')

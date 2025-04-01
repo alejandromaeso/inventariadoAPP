@@ -9,27 +9,18 @@ use Illuminate\Http\Request;
 
 class AlmacenesController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $almacenes = Almacenes::all(); // Obtener todos los almacenes
+        // Obtener todos los almacenes
+        $almacenes = Almacenes::all();
         return view('almacenes.index', compact('almacenes'));
     }
 
-
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return view('almacenes.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -45,40 +36,44 @@ class AlmacenesController extends Controller
         return redirect()->route('almacenes.index')->with('success', 'Almacén creado con éxito.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show($id)
     {
         $almacen = Almacenes::findOrFail($id);
         return view('almacenes.show', compact('almacen'));
     }
 
-
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Almacenes $almacenes)
+    public function edit($id)
     {
-        //
+        // Buscar el almacén por su ID
+        $almacen = Almacenes::findOrFail($id);
+
+        // Pasar el almacén a la vista de edición
+        return view('almacenes.edit', compact('almacen'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateAlmacenesRequest $request, Almacenes $almacenes)
+    public function update(Request $request, $id)
     {
-        //
+        // Validar los datos
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'ubicacion' => 'required|string|max:255',
+            'telefono' => 'nullable|string|max:20',
+            'email' => 'nullable|email|max:255',
+        ]);
+
+        // Encontrar y actualizar el almacén
+        $almacen = Almacenes::findOrFail($id);
+        $almacen->update($validated);
+
+        // Redirigir con mensaje de éxito
+        return redirect()->route('almacenes.index')->with('success', 'Almacén actualizado correctamente.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy($id)
     {
         $almacen = Almacenes::findOrFail($id);
-        $almacen->delete(); // Eliminar el almacén de la base de datos
+        // Eliminar el almacén de la base de datos
+        $almacen->delete();
 
         return redirect()->route('almacenes.index')->with('success', 'Almacén eliminado correctamente.');
     }

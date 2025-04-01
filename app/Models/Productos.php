@@ -10,13 +10,17 @@ class Productos extends Model
     use HasFactory;
 
     protected $fillable = [
-        'nombre', 'descripcion', 'precio', 'cantidad', 'categoria_id'
+        'nombre',
+        'descripcion',
+        'precio',
+        'categoria_id'
     ];
 
-    public function categorias()
+    public function categoria()
     {
-        return $this->belongsToMany(Categorias::class, 'producto_categoria');
+        return $this->belongsTo(Categorias::class, 'categoria_id');
     }
+
 
     public function movimientos()
     {
@@ -25,6 +29,18 @@ class Productos extends Model
 
     public function almacenes()
     {
-        return $this->belongsToMany(Almacenes::class, 'productos_almacenes')->withPivot('cantidad');
+
+        $nombreTablaPivote = 'productos_almacenes';
+        $claveForaneaEsteModelo = 'producto_id';
+        $claveForaneaOtroModelo = 'almacen_id';
+
+        return $this->belongsToMany(
+                Almacenes::class,
+                $nombreTablaPivote,
+                $claveForaneaEsteModelo,
+                $claveForaneaOtroModelo
+            )
+            ->withPivot('cantidad')
+            ->withTimestamps();     
     }
 }

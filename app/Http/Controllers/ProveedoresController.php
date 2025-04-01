@@ -2,65 +2,63 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreProveedoresRequest;
-use App\Http\Requests\UpdateProveedoresRequest;
 use App\Models\Proveedores;
+use Illuminate\Http\Request;
 
 class ProveedoresController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $proveedores = Proveedores::all();
+        return view('proveedores.index', compact('proveedores'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        return view('proveedores.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreProveedoresRequest $request)
+    public function store(Request $request)
     {
-        //
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'direccion' => 'nullable|string|max:255',
+            'telefono' => 'nullable|string|max:20',
+            'email' => 'nullable|email|max:255',
+        ]);
+
+        Proveedores::create($request->all());
+
+        return redirect()->route('proveedores.index')->with('success', 'Proveedor creado correctamente.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Proveedores $proveedores)
+    public function show(Proveedores $proveedor)
     {
-        //
+        return view('proveedores.show', compact('proveedor'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Proveedores $proveedores)
+    public function edit(Proveedores $proveedor)
     {
-        //
+        return view('proveedores.edit', compact('proveedor'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateProveedoresRequest $request, Proveedores $proveedores)
+    public function update(Request $request, Proveedores $proveedor)
     {
-        //
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'direccion' => 'nullable|string|max:255',
+            'telefono' => 'nullable|string|max:20',
+            'email' => 'nullable|email|max:255',
+        ]);
+
+        $proveedor->update($request->all());
+
+        return redirect()->route('proveedores.index')->with('success', 'Proveedor actualizado correctamente.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Proveedores $proveedores)
+    public function destroy(Proveedores $proveedor)
     {
-        //
+        $proveedor->delete();
+        return redirect()->route('proveedores.index')->with('success', 'Proveedor eliminado correctamente.');
     }
 }

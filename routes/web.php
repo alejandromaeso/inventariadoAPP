@@ -17,7 +17,9 @@ Route::resource('productos', ProductosController::class);
 
 Route::resource('movimientosInventario', MovimientosInventarioController::class);
 
-Route::resource('proveedores', ProveedoresController::class);
+Route::resource('proveedores', ProveedoresController::class)->parameters([
+    'proveedores' => 'proveedor',
+]);
 
 Route::resource('categorias', CategoriasController::class);
 

@@ -13,49 +13,61 @@ class Almacenes extends Model
         'nombre', 'ubicacion'
     ];
 
-    // RELACIÓN MUCHOS A MUCHOS CON PRODUCTOS
     public function productos()
     {
-        return $this->belongsToMany(Productos::class, 'productos_almacenes')->withPivot('cantidad');
+        // Nombres de las columnas en la tabla pivote 'productos_almacenes'
+        $nombreTablaPivote = 'productos_almacenes';
+        $claveForaneaEsteModelo = 'almacen_id';
+        $claveForaneaOtroModelo = 'producto_id';
+
+        return $this->belongsToMany(
+                Productos::class,
+                $nombreTablaPivote,
+                $claveForaneaEsteModelo,
+                $claveForaneaOtroModelo
+            )
+            ->withPivot('cantidad')
+            ->withTimestamps();
     }
 
     // GETTERS
-    public function getNombre($value)
+    public function getNombreAttribute($value)
     {
-        return ucfirst($value); // Primera letra en mayúscula
+        // Primera letra en mayúscula
+        return ucfirst($value);
     }
 
-    public function getUbicacion($value)
+    public function getUbicacionAttribute($value)
     {
-        return strtoupper($value); // Convierte en mayúsculas
+        // Primera letra en mayúscula
+        return ucfirst($value);
     }
 
     // SETTERS
-    public function setNombre($value)
+    public function setNombreAttribute($value)
     {
-        $this->attributes['nombre'] = strtolower($value); // Guarda en minúsculas
+        // Guardamos en minúsculas para evitar problemas con la BD
+        $this->attributes['nombre'] = strtolower($value);
     }
 
-    public function setUbicacion($value)
+    public function setUbicacionAttribute($value)
     {
         $this->attributes['ubicacion'] = strtolower($value);
     }
 
-    // MÉTODO PARA OBTENER TODOS LOS PRODUCTOS DEL ALMACÉN
     public function obtenerProductos()
     {
-        return $this->productos()->with('categoria')->get(); // Trae productos con su categoría (si tiene relación)
+        // Obtenemos los productos con su categoría
+        return $this->productos()->with('categoria')->get();
     }
 
-    // MÉTODO PARA CONTAR PRODUCTOS EN EL ALMACÉN
     public function contarProductos()
     {
         return $this->productos()->count();
     }
 
-    // MÉTODO PARA OBTENER LA CANTIDAD TOTAL DE PRODUCTOS
-    public function cantidadTotalProductos()
+    public function cantidadTotalStock()
     {
-        return $this->productos()->sum('pivot.cantidad'); // Suma la cantidad en la tabla pivot
+        return $this->productos()->sum('productos_almacenes.cantidad');
     }
 }

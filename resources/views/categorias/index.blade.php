@@ -21,7 +21,7 @@
                 <td>{{ $categoria->id }}</td>
                 <td>{{ $categoria->nombre }}</td>
                 <td>
-
+                    <a href="{{ route('categorias.edit', $categoria->id) }}" class="btn btn-warning">Editar Categoria</a>
                     <form action="{{ route('categorias.destroy', $categoria->id) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('¿Estás seguro de eliminar esta categoria?');">
                         @csrf
                         @method('DELETE')
