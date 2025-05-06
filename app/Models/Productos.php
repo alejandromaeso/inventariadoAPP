@@ -24,7 +24,7 @@ class Productos extends Model
 
     public function movimientos()
     {
-        return $this->hasMany(MovimientosInventario::class);
+        return $this->hasMany(MovimientosInventario::class, 'producto_id');
     }
 
     public function almacenes()
@@ -41,6 +41,22 @@ class Productos extends Model
                 $claveForaneaOtroModelo
             )
             ->withPivot('cantidad')
-            ->withTimestamps();     
+            ->withTimestamps();
+    }
+
+    public function proveedores()
+    {
+        $nombreTablaPivote = 'productos_proveedores';
+        $claveForaneaEsteModelo = 'producto_id';
+        $claveForaneaOtroModelo = 'proveedor_id';
+
+        return $this->belongsToMany(
+                Proveedores::class,
+                $nombreTablaPivote,
+                $claveForaneaEsteModelo,
+                $claveForaneaOtroModelo
+            )
+            ->withPivot('precio_proveedor')
+            ->withTimestamps();
     }
 }

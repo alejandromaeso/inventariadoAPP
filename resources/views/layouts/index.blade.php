@@ -47,10 +47,10 @@ h3 {
             <h2 class="mb-3">Accede a las principales secciones</h2>
             <div class="d-flex justify-content-center">
                 <a href="{{ route('almacenes.index') }}" class="btn btn-primary btn-lg mx-2">Almacenes</a>
-                <a href="{{ route('movimientosInventario.index') }}" class="btn btn-success btn-lg mx-2">Movimientos Inventario</a>
-                <a href="{{ route('productos.index') }}" class="btn btn-info btn-lg mx-2">Productos</a>
-                <a href="{{ route('categorias.index') }}" class="btn btn-warning btn-lg mx-2">Categorías</a>
                 <a href="{{ route('proveedores.index') }}" class="btn btn-danger btn-lg mx-2">Proveedores</a>
+                <a href="{{ route('categorias.index') }}" class="btn btn-warning btn-lg mx-2">Categorías</a>
+                <a href="{{ route('productos.index') }}" class="btn btn-info btn-lg mx-2">Productos</a>
+                <a href="{{ route('movimientos.index') }}" class="btn btn-success btn-lg mx-2">Movimientos Inventario</a>
             </div>
         </div>
     </div>

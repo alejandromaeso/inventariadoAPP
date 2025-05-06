@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_admin', // <-- ADD THIS LINE
     ];
 
     /**
@@ -43,6 +44,16 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_admin' => 'boolean', // <-- ADD THIS LINE to cast it to boolean
         ];
+    }
+
+    /**
+     * Check if the user is an administrator.
+     */
+    public function isAdmin(): bool
+    {
+        // This method is correct, it returns the boolean value of the is_admin column
+        return $this->is_admin;
     }
 }

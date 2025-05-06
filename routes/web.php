@@ -1,26 +1,41 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AlmacenesController;
 use App\Http\Controllers\CategoriasController;
 use App\Http\Controllers\MovimientosInventarioController;
 use App\Http\Controllers\ProductosController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProveedoresController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('layouts/index');
+    return view('welcome');
 });
 
-Route::resource('almacenes', AlmacenesController::class);
+Route::get('/dashboard', function () {
+    return view('layouts/index');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::resource('productos', ProductosController::class);
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-Route::resource('movimientosInventario', MovimientosInventarioController::class);
+    Route::middleware('auth')->group(function () {
+        Route::resource('proveedores', ProveedoresController::class)->parameters([
+            'proveedores' => 'proveedor',
+        ]);
 
-Route::resource('proveedores', ProveedoresController::class)->parameters([
-    'proveedores' => 'proveedor',
-]);
+        Route::resource('categorias', CategoriasController::class);
 
-Route::resource('categorias', CategoriasController::class);
+        Route::resource('productos', ProductosController::class);
+        Route::get('/productos/almacen/{almacen}', [ProductosController::class, 'indexByAlmacen'])
+            ->name('productos.indexByAlmacen');
 
-//Route::resource('user', UserController::class);
+        Route::get('/movimientos', [MovimientosInventarioController::class, 'index'])->name('movimientos.index');
+    });
+
+    Route::resource('almacenes', AlmacenesController::class);
+});
+
+require __DIR__.'/auth.php';

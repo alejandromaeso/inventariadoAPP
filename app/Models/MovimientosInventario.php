@@ -9,17 +9,30 @@ class MovimientosInventario extends Model
 {
     use HasFactory;
 
+    protected $table = 'movimientos_inventario';
+
     protected $fillable = [
-        'producto_id', 'tipo_movimiento', 'cantidad', 'fecha', 'proveedor_id'
+        'producto_id',
+        'almacen_id',
+        'tipo',
+        'cantidad',
+        'user_id',
+        'descripcion',
     ];
 
+    // Relaciones
     public function producto()
     {
-        return $this->belongsTo(Productos::class);
+        return $this->belongsTo(Productos::class, 'producto_id');
     }
 
-    public function proveedor()
+    public function almacen()
     {
-        return $this->belongsTo(Proveedores::class);
+        return $this->belongsTo(Almacenes::class, 'almacen_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(\App\Models\User::class);
     }
 }
