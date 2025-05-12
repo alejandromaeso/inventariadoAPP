@@ -25,7 +25,7 @@ return new class extends Migration
 
             $table->timestamps();
 
-            // Evitar duplicados
+            // Evitamos duplicados
             $table->unique(['producto_id', 'categoria_id']);
         });
     }

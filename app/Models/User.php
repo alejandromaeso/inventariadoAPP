@@ -9,51 +9,38 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'name',
         'email',
         'password',
-        'is_admin', // <-- ADD THIS LINE
+        'is_admin',
+        'almacen_id',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'is_admin' => 'boolean', // <-- ADD THIS LINE to cast it to boolean
+            'is_admin' => 'boolean',
         ];
     }
 
-    /**
-     * Check if the user is an administrator.
-     */
     public function isAdmin(): bool
     {
-        // This method is correct, it returns the boolean value of the is_admin column
         return $this->is_admin;
+    }
+
+    public function almacen()
+    {
+        return $this->belongsTo(Almacenes::class);
     }
 }

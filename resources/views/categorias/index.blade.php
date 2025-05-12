@@ -4,7 +4,7 @@
 <div class="container">
     <h1 class="mb-4">Lista de Categorias</h1>
 
-    <!-- Botón para agregar un nuevo categoria -->
+    <!-- Botón para agregar una nueva categoria -->
     <a href="{{ route('categorias.create') }}" class="btn btn-primary mb-3">Añadir Categoria</a>
 
     <table class="table">

@@ -6,19 +6,20 @@ use App\Models\Productos;
 use App\Models\Categorias;
 use App\Models\Almacenes;
 use App\Models\Proveedores;
-use App\Models\MovimientosInventario; // <-- Importar el modelo MovimientosInventario
+use App\Models\MovimientosInventario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Auth; // <-- Importar Auth para obtener el usuario loggeado
+use Illuminate\Support\Facades\Auth;
 
 class ProductosController extends Controller
 {
-    // ... (index, create, show, edit métodos sin cambios sustanciales para esta lógica) ...
+
     public function index()
     {
-        $productos = Productos::with(['categoria', 'almacenes', 'proveedores']) // Opcional: cargar proveedores también si se muestran en index
+        // Cargamos los productos
+        $productos = Productos::with(['categoria', 'almacenes', 'proveedores'])
                            ->withSum('almacenes as stock_total', 'productos_almacenes.cantidad')
                            ->latest()
                            ->paginate(15);
@@ -49,6 +50,7 @@ class ProductosController extends Controller
             'proveedor_precio' => ['present', 'array'],
             'proveedor_precio.*' => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
         ], [
+            //Posibles errores
             'nombre.required' => 'El nombre del producto es obligatorio.',
             'nombre.unique' => 'Ya existe un producto con este nombre.',
             'precio.required' => 'El precio de venta es obligatorio.',
@@ -66,7 +68,7 @@ class ProductosController extends Controller
             'proveedor_precio.*.max' => 'El precio del proveedor es demasiado alto.',
         ]);
 
-        // Validación adicional: Precio de venta mayor que precio de proveedor
+        // El precio de venta tiene que ser mayor que el precio del proveedor
         $validator->after(function ($validator) {
             $validatedData = $validator->validated();
             $sellingPrice = $validatedData['precio'] ?? null;
@@ -113,10 +115,8 @@ class ProductosController extends Controller
                  return back()->withErrors(['proveedor_precio' => 'Los proveedores con ID ' . implode(', ', $idsInvalidosProv) . ' no son válidos.'])->withInput();
              }
          }
-        // ... (Validación Stock Positivo si aplica) ...
 
-
-        // --- Ejecutar Creación y Registrar Movimientos ---
+        // Creación y Registro de Movimientos
         try {
             DB::beginTransaction();
 
@@ -128,10 +128,12 @@ class ProductosController extends Controller
             ]);
 
             $syncDataAlmacenes = [];
-            $movementsToRecord = []; // Array para almacenar los movimientos a registrar
+            // Array para almacenar los movimientos a registrar
+            $movementsToRecord = [];
 
             foreach ($stockInput as $almacenId => $cantidad) {
-                 $cantidad = (int)$cantidad; // Asegurar que es entero
+                // Verificamos que es entero
+                 $cantidad = (int)$cantidad;
                 if ($cantidad >= 0) {
                     $syncDataAlmacenes[$almacenId] = ['cantidad' => $cantidad];
 
@@ -142,23 +144,26 @@ class ProductosController extends Controller
                             'almacen_id' => $almacenId,
                             'tipo' => 'entrada',
                             'cantidad' => $cantidad,
-                            'user_id' => Auth::id(), // O null si no hay usuario loggeado
+                            // O null si no hay usuario loggeado
+                            'user_id' => Auth::id(),
                             'descripcion' => 'Stock inicial al crear producto',
-                            'created_at' => now(), // Registrar el timestamp del movimiento
+                            // Registramos el timestamp del movimiento
+                            'created_at' => now(),
                             'updated_at' => now(),
                         ];
                     }
                 }
             }
 
-             // Realizar la sincronización de almacenes
+             // Realizamos la sincronización de almacenes
              if (!empty($syncDataAlmacenes)) {
                  $producto->almacenes()->sync($syncDataAlmacenes);
              }
 
-            // Registrar los movimientos de inventario
+            // Registramos los movimientos de inventario
             if (!empty($movementsToRecord)) {
-                MovimientosInventario::insert($movementsToRecord); // Usar insert para eficiencia
+                // Usamos insert para mayor eficiencia
+                MovimientosInventario::insert($movementsToRecord);
             }
 
 
@@ -179,19 +184,19 @@ class ProductosController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            // Log::error('Error al crear producto: ' . $e->getMessage());
             return back()->withInput()->withErrors(['error_inesperado' => 'Ocurrió un error al guardar el producto: ' . $e->getMessage()]);
         }
     }
 
     public function show(Productos $producto)
     {
-        $producto->load(['categoria', 'almacenes', 'proveedores']); // Cargar relaciones, incluyendo movimientos con almacén y usuario
+        // Cargamos relaciones, incluyendo movimientos con almacén y usuario
+        $producto->load(['categoria', 'almacenes', 'proveedores']);
 
-        // Calcular stock total
+        // Calculamos stock total
         $stockTotal = $producto->almacenes()->sum('productos_almacenes.cantidad');
 
-        // Pasar producto (con proveedores cargados), stock total y movimientos a la vista
+        // Pasamos el producto (con proveedores cargados), stock total y movimientos a la vista
         return view('productos.show', compact('producto', 'stockTotal'));
     }
 
@@ -204,8 +209,8 @@ class ProductosController extends Controller
         $almacenes = Almacenes::orderBy('nombre')->get();
         $proveedores = Proveedores::orderBy('nombre')->get();
 
-        $almacenesActuales = $producto->almacenes->pluck('pivot.cantidad', 'id'); // Pluck por almacen_id
-        $preciosProveedoresActuales = $producto->proveedores->pluck('pivot.precio_proveedor', 'id'); // Pluck por proveedor_id
+        $almacenesActuales = $producto->almacenes->pluck('pivot.cantidad', 'id');
+        $preciosProveedoresActuales = $producto->proveedores->pluck('pivot.precio_proveedor', 'id');
 
         return view('productos.edit', compact(
             'producto',
@@ -299,19 +304,19 @@ class ProductosController extends Controller
                   return back()->withErrors(['proveedor_precio' => 'Los proveedores con ID ' . implode(', ', $idsInvalidosProv) . ' no son válidos.'])->withInput();
               }
           }
-         // ... (Validación Stock Positivo si aplica) ...
 
 
-         // --- Ejecutar Actualización y Registrar Movimientos ---
+         // Ejecutamos la actualización y registrmaos los Movimientos
           try {
               DB::beginTransaction();
 
-              // Obtener el stock actual ANTES de actualizar la tabla pivote
-              // Laravel a menudo puede inferir la tabla si la columna existe en la pivote y no en la otra tabla
+              // Obtenemos el stock actual antes de actualizar la tabla pivote
               $oldStock = $producto->almacenes()->pluck('cantidad', 'almacen_id')->toArray();
               $newStock = $validatedData['almacen_stock'] ?? [];
-              $movementsToRecord = []; // Array para almacenar los movimientos a registrar
-              $userId = Auth::id(); // Obtener el ID del usuario loggeado
+              // Array para almacenar los movimientos a registrar
+              $movementsToRecord = [];
+              // Obtenemos el ID del usuario loggeado
+              $userId = Auth::id();
 
               // Actualizamos campos básicos del producto
               $producto->update([
@@ -328,21 +333,23 @@ class ProductosController extends Controller
               foreach ($allAlmacenIds as $almacenId) {
                    $oldQty = $oldStock[$almacenId] ?? 0;
                    $newQty = $newStock[$almacenId] ?? 0;
-                   $change = $newQty - $oldQty; // Diferencia: >0 entrada, <0 salida, =0 sin movimiento relevante
+                   $change = $newQty - $oldQty;
 
                    // Preparamos los datos para el sync (si la nueva cantidad es >= 0)
+                   //Si la nueva cantidad es 0 y antes había stock, sync lo eminará.
                    if ($newQty >= 0) {
                         $syncDataAlmacenes[$almacenId] = ['cantidad' => $newQty];
                    }
-                   // Si la nueva cantidad es 0 y antes había stock, sync lo eliminará, lo cual es correcto.
 
-                   // Registrar movimiento SOLO si hay un cambio significativo en la cantidad
+
+                   // Registrar movimiento SOLO si hay un cambio en la cantidad
                    if ($change != 0) {
                        $movementsToRecord[] = [
                            'producto_id' => $producto->id,
                            'almacen_id' => $almacenId,
                            'tipo' => $change > 0 ? 'entrada' : 'salida',
-                           'cantidad' => abs($change), // La cantidad del movimiento siempre es positiva
+                           // La cantidad del movimiento siempre es positiva
+                           'cantidad' => abs($change),
                            'user_id' => $userId,
                            'descripcion' => 'Ajuste por edición de producto',
                            'created_at' => now(),
@@ -356,7 +363,8 @@ class ProductosController extends Controller
 
               // Registrar los movimientos de inventario
               if (!empty($movementsToRecord)) {
-                  MovimientosInventario::insert($movementsToRecord); // Usar insert para eficiencia
+                 // Usamos insert para mayor eficiencia
+                  MovimientosInventario::insert($movementsToRecord);
               }
 
               // Sync Proveedores (sin cambios)
@@ -371,12 +379,11 @@ class ProductosController extends Controller
 
               DB::commit();
 
-               // Redirigir a la vista de detalles del producto actualizado
+               // Redirigimos a la vista de detalles del producto actualizado
               return redirect()->route('productos.show', $producto->id)->with('success', 'Producto actualizado correctamente.');
 
           } catch (\Exception $e) {
               DB::rollBack();
-              // Log::error('Error al actualizar producto ID ' . $producto->id . ': ' . $e->getMessage());
               return back()->withInput()->withErrors(['error_inesperado' => 'Ocurrió un error al actualizar el producto: ' . $e->getMessage()]);
           }
     }
@@ -386,10 +393,10 @@ class ProductosController extends Controller
         try {
             DB::beginTransaction();
 
-             // Obtener el stock actual antes de desvincular
+             // Obtenemos el stock actual antes de eliminar
              $stockAntesEliminar = $producto->almacenes()->pluck('productos_almacenes.cantidad', 'almacenes.id')->toArray(); // Pluck por almacen_id
 
-             // Registrar movimientos de salida para todo el stock existente
+             // Registramos movimientos de salida para todo el stock existente
              $movementsToRecord = [];
              $userId = Auth::id();
 
@@ -408,14 +415,14 @@ class ProductosController extends Controller
                  }
              }
 
-            // Registrar los movimientos de inventario ANTES de eliminar/desvincular las relaciones
+            // Registramos los movimientos de inventario ANTES de eliminar las relaciones
             if (!empty($movementsToRecord)) {
                 MovimientosInventario::insert($movementsToRecord);
             }
 
-            // Desvincular proveedores
+            // Desvinculamos proveedores
             $producto->proveedores()->detach();
-            // Desvincular almacenes (esto elimina las filas de la tabla pivote productos_almacenes)
+            // Desvinculamos almacenes, con esto eliminamos las filas de la tabla pivote productos_almacenes
             $producto->almacenes()->detach();
             // Borramos el producto
             $producto->delete();
@@ -424,31 +431,44 @@ class ProductosController extends Controller
             return redirect()->route('productos.index')->with('success', 'Producto eliminado correctamente.');
         } catch (\Exception $e) {
             DB::rollBack();
-            // Log::error('Error al eliminar producto ID ' . $producto->id . ': ' . $e->getMessage());
             return redirect()->route('productos.index')->with('error', 'No se pudo eliminar el producto: '.$e->getMessage());
         }
     }
 
      public function indexByAlmacen(Almacenes $almacen)
-     {
-         $productos = $almacen->productos()
-                              ->with(['categoria', 'proveedores']) // Cargar proveedores si es necesario aquí también
-                              ->wherePivot('cantidad', '>', 0)
-                              ->orderBy('productos.nombre', 'asc')
-                              ->paginate(15);
+    {
+        // Obtenemos el usuario autenticado
+        $user = Auth::user();
 
-         return view('productos.index-by-almacen', compact('productos', 'almacen'));
-     }
+        // Si el usuario NO es administrador Y su almacen_id asignado es diferente al ID del almacén que intenta ver
+        if (!$user->is_admin && $user->almacen_id !== $almacen->id) {
+            // Denegamos el acceso
+            abort(403, 'No tienes permiso para ver los productos de este almacén.');
+        }
+        // Cargamos las relaciones
+        $productos = $almacen->productos()
+                             ->with(['categoria', 'proveedores'])
+                             ->wherePivot('cantidad', '>', 0)
+                             ->orderBy('productos.nombre', 'asc')
+                             ->paginate(15);
 
-      // Puedes añadir un método para ver los movimientos de inventario si lo necesitas
+        // Calculamos stock total para cada producto
+         $productos->each(function($producto) use ($almacen) {
+              // Cargamos la relación pivot para este almacén si no está ya cargada
+             $almacenPivot = $producto->almacenes->where('id', $almacen->id)->first();
+             $producto->stock_en_este_almacen = $almacenPivot ? $almacenPivot->pivot->cantidad : 0;
+         });
+
+
+        return view('productos.index-by-almacen', compact('productos', 'almacen'));
+    }
+
       public function movimientos(Productos $producto)
       {
-          $producto->load(['movimientos.almacen', 'movimientos.user']); // Carga la relación movimientos y sus relaciones anidadas
-
-          // Puedes pasar $producto y sus movimientos a una vista específica de movimientos
-          // return view('productos.movimientos', compact('producto'));
-          // O simplemente redirigir a la vista show que ya los carga
-          return redirect()->route('productos.show', $producto->id . '#movimientos'); // Redirige a la sección de movimientos si la tienes en show
+        // Cargamos la relación movimientos y sus relaciones anidadas
+          $producto->load(['movimientos.almacen', 'movimientos.user']);
+          // Redirigimos a la sección de movimientos
+          return redirect()->route('productos.show', $producto->id . '#movimientos');
       }
 
 }

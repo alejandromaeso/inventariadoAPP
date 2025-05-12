@@ -6,9 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+
     public function up(): void
     {
         // Tabla pivot para la relación N:M entre productos y proveedores
@@ -25,20 +23,16 @@ return new class extends Migration
                   ->onDelete('cascade');
 
               // Columna para guardar el precio específico del proveedor para este producto.
-            // Usamos decimal(precision, scale). Ej: 10 dígitos en total, 2 decimales.
-            // Hazlo nullable si el precio no siempre es obligatorio al crear la relación.
+            // Lo hacemos nullable si el precio no siempre es obligatorio al crear la relación.
              $table->decimal('precio_proveedor', 10, 2)->nullable();
 
             $table->timestamps();
 
-            // Evitar duplicados
+            // Evitamos duplicados
             $table->unique(['producto_id', 'proveedor_id']);
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('productos_proveedores');

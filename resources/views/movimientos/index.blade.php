@@ -19,7 +19,6 @@
              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
-    {{-- Fin mensajes flash --}}
 
     <div class="card shadow-sm">
         <div class="card-body">
@@ -73,7 +72,7 @@
                         </tr>
                         @empty
                         <tr>
-                            {{-- Colspan debe coincidir con el número de columnas (8 en este caso) --}}
+                            {{-- Colspan debe coincidir con el número de columnas --}}
                             <td colspan="8" class="text-center text-muted py-3">
                                 <i class="fas fa-exchange-alt fa-2x mb-2"></i><br>
                                 No hay movimientos de inventario registrados todavía.

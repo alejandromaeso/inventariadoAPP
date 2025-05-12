@@ -9,7 +9,7 @@
         </a>
     </div>
 
-    {{-- Mostrar mensajes flash --}}
+    {{-- Mostramos mensajes flash --}}
     @include('partials.flash-messages')
 
     <div class="card shadow-sm">

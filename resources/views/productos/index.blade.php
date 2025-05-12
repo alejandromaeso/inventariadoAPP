@@ -4,10 +4,18 @@
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>Lista de Productos</h1>
-        <a href="{{ route('productos.create') }}" class="btn btn-primary" title="Añadir nuevo producto">
-             <i class="fas fa-plus me-1"></i> Añadir Producto
-        </a>
+        {{-- Únicamente el admin puede añadir producto --}}
+        @auth
+            @php $user = Auth::user(); @endphp
+            @if ($user->isAdmin())
+                <a href="{{ route('productos.create') }}" class="btn btn-primary" title="Añadir nuevo producto">
+                    <i class="fas fa-plus me-1"></i> Añadir Producto
+                </a>
+            @endif
+        @endauth
     </div>
+</div>
+
 
     {{-- Mensajes flash --}}
     @if (session('success'))
@@ -89,7 +97,7 @@
                                     <span class="badge bg-light text-dark">Ninguno</span>
                                 @endforelse
                             </td>
-                             {{-- ============================================= --}}
+
                             <td class="text-end">
                                 <a href="{{ route('productos.show', $producto->id) }}" class="btn btn-sm btn-info" title="Ver Detalles"><i class="fas fa-eye"></i></a>
                                 <a href="{{ route('productos.edit', $producto->id) }}" class="btn btn-sm btn-warning" title="Editar Producto"><i class="fas fa-edit"></i></a>
@@ -112,7 +120,7 @@
                 </table>
             </div>
         </div>
-        
+
         {{-- Paginación --}}
         @if ($productos instanceof \Illuminate\Pagination\LengthAwarePaginator && $productos->hasPages())
             <div class="card-footer d-flex justify-content-center">

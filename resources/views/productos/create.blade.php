@@ -4,17 +4,17 @@
 <div class="container">
     <h1>Añadir Nuevo Producto</h1>
 
-    {{-- Mostrar errores generales de validación y errores específicos --}}
+    {{-- Mostramos errores generales de validación y errores específicos --}}
     @if ($errors->any())
         <div class="alert alert-danger">
             <ul>
                 @foreach ($errors->all() as $error)
-                    {{-- Evita duplicar mensajes de error que se mostrarán --}}
+                    {{-- Evitamos duplicar mensajes de error que se mostrarán --}}
                     @if (!Str::startsWith($error, ['El nombre', 'El precio', 'Debes seleccionar una categoría', 'La categoría', 'Los datos de stock', 'Se requiere una cantidad', 'La cantidad', 'Los datos de precios', 'El precio del proveedor']))
                         <li>{{ $error }}</li>
                     @endif
                 @endforeach
-                {{-- Mostrar errores específicos de arrays que no son por elemento individual --}}
+                {{-- Mostramos errores específicos de arrays que no son por elemento individual --}}
                 @if ($errors->has('almacen_stock') && !$errors->has('almacen_stock.*') && !Str::contains($errors->first('almacen_stock'), 'ID'))
                      <li>{{ $errors->first('almacen_stock') }}</li>
                 @endif
@@ -130,7 +130,7 @@
             </div>
         </div>
 
-        {{-- Asignar Proveedores y Precios de Compra      --}}
+        {{-- Asignar Proveedores y Precios de Compra --}}
         <div class="card mb-4 shadow-sm">
             <div class="card-header">Proveedores y Precios de Compra</div>
             <div class="card-body">
@@ -158,7 +158,7 @@
                                             {{-- Nombre del array esperado por el controlador --}}
                                             name="proveedor_precio[{{ $proveedor->id }}]"
                                             id="proveedor_precio_{{ $proveedor->id }}"
-                                            {{-- Recuperar valor anterior si falla validación --}}
+                                            {{-- Recuperamos valor anterior si falla la validación --}}
                                             value="{{ old('proveedor_precio.' . $proveedor->id) }}"
                                             min="0"
                                             step="0.01"

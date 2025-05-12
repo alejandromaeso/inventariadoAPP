@@ -24,10 +24,10 @@ class ProveedoresController extends Controller
         $validatedData = $request->validate([
             'nombre' => 'required|string|max:255',
             'direccion' => 'nullable|string|max:255',
-            'telefono' => [ // Aplicamos reglas específicas para el teléfono
-                'nullable', // Sigue siendo opcional
+            'telefono' => [ // Reglas específicas para el teléfono
+                'nullable',
                 'string',
-                'max:20',   // Límite de longitud razonable
+                'max:20',
                 // Expresión regular para validar formatos españoles:
                 // - Opcional prefijo +34 o 0034
                 // - Seguido opcionalmente por espacios/guiones/puntos
@@ -36,39 +36,39 @@ class ProveedoresController extends Controller
                 // - Permite espacios/guiones/puntos opcionales entre los dígitos
                 'regex:/^((?:\+|00)34)?[\s.-]*[679]([\s.-]?\d){8}$/'
             ],
-            'email' => 'nullable|email|max:255|unique:proveedores,email', // Email debe ser único al crear
+            'email' => 'nullable|email|max:255|unique:proveedores,email',
         ], [
+            // Mensaje de errores
             'telefono.regex' => 'El formato del teléfono no es válido. Use un formato español.',
             'telefono.max' => 'El teléfono no puede tener más de 20 caracteres.',
             'email.unique' => 'Este correo electrónico ya está en uso.'
         ]);
 
-        // --- Normalización del Teléfono (Recomendado) ---
-        // Antes de guardar, es buena idea normalizar el número a un formato estándar,
-        // como el E.164 (+34XXXXXXXXX), si es posible.
+        // Antes de guardar, normalizamos el número a un formato estándar,
+        // como el +34XXXXXXXXX
         if (!empty($validatedData['telefono'])) {
             $telefono = $validatedData['telefono'];
-            // 1. Eliminar espacios, guiones, puntos
+            // Eliminamos espacios, guiones y puntos
             $telefonoNormalizado = preg_replace('/[\s.-]+/', '', $telefono);
 
-            // 2. Reemplazar 0034 inicial por +34
+            // Reemplazamos 0034 inicial por +34
             if (strpos($telefonoNormalizado, '0034') === 0) {
                 $telefonoNormalizado = '+34' . substr($telefonoNormalizado, 4);
             }
 
-            // 3. Añadir +34 si son 9 dígitos y empiezan por 6, 7 o 9
+            // Añadimos +34 si son 9 dígitos y empiezan por 6, 7 o 9
             if (preg_match('/^[679]\d{8}$/', $telefonoNormalizado)) {
                 $telefonoNormalizado = '+34' . $telefonoNormalizado;
             }
 
-            // 4. Asignar el valor normalizado (solo si cumple el formato E.164 español)
+            // Asignamos el valor normalizado solo si cumple el formato español
             if (preg_match('/^\+34[679]\d{8}$/', $telefonoNormalizado)) {
                  $validatedData['telefono'] = $telefonoNormalizado;
             } else {
                  // Si después de normalizar no coincide (ej. teléfono internacional),
-                 // guardamos la versión semi-limpia (sin espacios/guiones) que pasó el regex inicial.
-                 // O podrías decidir guardar el original $validatedData['telefono']
-                  $validatedData['telefono'] = preg_replace('/[^\d+]/', '', $telefonoNormalizado); // Guarda solo dígitos y el + si existe
+                 // guardamos la versión que pasa el regex inicial.
+                 // Guardamos solo dígitos y el + si existe
+                  $validatedData['telefono'] = preg_replace('/[^\d+]/', '', $telefonoNormalizado);
             }
         }
         // --------------------------------------------------
@@ -92,7 +92,7 @@ class ProveedoresController extends Controller
 
     public function update(Request $request, Proveedores $proveedor)
     {
-        // --- Validación (Incluyendo regex para teléfono y unique para email) ---
+        // Validación
         $validatedData = $request->validate([
             'nombre' => 'required|string|max:255',
             'direccion' => 'nullable|string|max:255',
@@ -110,16 +110,15 @@ class ProveedoresController extends Controller
                 'email',
                 'max:255',
                  Rule::unique('proveedores', 'email')->ignore($proveedor->id),
-                // Equivalente a: 'unique:proveedores,email,'.$proveedor->id
             ],
         ], [
-            // Mensajes de error personalizados
+            // Mensajes de error
             'telefono.regex' => 'El formato del teléfono no es válido. Use un formato español (9 dígitos empezando por 6, 7 o 9, opcionalmente con +34 y separadores).',
             'telefono.max' => 'El teléfono no puede tener más de 20 caracteres.',
             'email.unique' => 'Este correo electrónico ya está siendo utilizado por otro proveedor.'
         ]);
 
-        // --- Normalización del Teléfono (Igual que en store) ---
+        // Validación del Teléfono (Igual que en store)
         if (!empty($validatedData['telefono'])) {
             $telefono = $validatedData['telefono'];
             $telefonoNormalizado = preg_replace('/[\s.-]+/', '', $telefono);
@@ -138,20 +137,17 @@ class ProveedoresController extends Controller
                   $validatedData['telefono'] = preg_replace('/[^\d+]/', '', $telefonoNormalizado);
             }
         } elseif (array_key_exists('telefono', $validatedData)) {
-             // Si se envió un teléfono vacío (''), asegúrate de guardar NULL o '' según tu DB.
-             // Si $validatedData['telefono'] es null aquí, está bien. Si es '', quizá quieras null.
              $validatedData['telefono'] = $validatedData['telefono'] === '' ? null : $validatedData['telefono'];
         }
-        // --------------------------------------------------
 
-        // --- Actualización ---
-        // Usamos $validatedData que contiene los datos validados y potencialmente normalizados
+        // Usamos $validatedData que contiene los datos validados y normalizados
         $proveedor->update($validatedData);
 
         return redirect()->route('proveedores.index')
                          ->with('success', 'Proveedor actualizado correctamente.');
     }
 
+    // Eliminar proveedores
     public function destroy(Proveedores $proveedor)
     {
         $proveedor->delete();

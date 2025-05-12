@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         // Tabla pivot para la relación N:M entre productos y almacenes
@@ -30,14 +27,11 @@ return new class extends Migration
 
             $table->timestamps();
 
-            // Evitar duplicados 
+            // Evitar duplicados
             $table->unique(['producto_id', 'almacen_id']);
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('productos_almacenes');

@@ -39,6 +39,22 @@
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
         </div>
 
+        <div class="mt-4">
+            <label for="almacen_id" class="form-label">Almacén</label>
+            <select class="form-select @error('almacen_id') is-invalid @enderror" id="almacen_id" name="almacen_id">
+                <option value="">-- Seleccionar Almacén --</option>
+                @foreach ($almacenes as $almacen)
+                    {{-- old() mantiene la selección si hay error de validación --}}
+                    <option value="{{ $almacen->id }}" {{ old('almacen_id') == $almacen->id ? 'selected' : '' }}>
+                        {{ $almacen->nombre }}
+                    </option>
+                @endforeach
+            </select>
+            @error('almacen_id')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+
         <div class="flex items-center justify-end mt-4">
             <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('login') }}">
                 {{ __('Already registered?') }}

@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container">
-    {{-- Verifica si la variable $producto existe antes de usarla --}}
+    {{-- Verificamos si la variable $producto existe antes de usarla --}}
     @if(isset($producto))
         <h1>Detalles del Producto</h1>
 
@@ -13,10 +13,10 @@
             </div>
             <div class="card-body">
                 {{-- Usamos nl2br para respetar saltos de línea en descripción, esto convierte los saltos de línea (\n) --}}
-                {{-- En etiquetas HTML <br> --}}
+                {{-- En etiquetas HTML "<br>"" --}}
                 <p><strong>Descripción:</strong> {!! nl2br(e($producto->descripcion ?? 'N/A')) !!}</p>
                 <p><strong>Precio Venta:</strong> {{ number_format($producto->precio, 2, ',', '.') }} €</p>
-                {{-- Comprobar si la categoría existe antes de acceder a su nombre --}}
+                {{-- Comprobamos si la categoría existe antes de acceder a su nombre --}}
                 <p><strong>Categoría:</strong> {{ $producto->categoria->nombre ?? 'Sin categoría' }}</p>
                 <p><strong>Stock Total (todos los almacenes):</strong>
                     {{-- Usamos la variable $stockTotal pasada por el controlador --}}
@@ -38,12 +38,12 @@
             </div>
             <div class="card-body">
                 @forelse($producto->almacenes as $almacen)
-                    <div class="d-flex justify-content-between align-items-center mb-2 pb-2 @unless($loop->last) border-bottom @endunless"> {{-- Añadido border-bottom condicional --}}
+                    <div class="d-flex justify-content-between align-items-center mb-2 pb-2 @unless($loop->last) border-bottom @endunless">
                         <span>
                              <i class="fas fa-warehouse me-2 text-secondary"></i> {{ $almacen->nombre }}
                              <small class="text-muted">({{ $almacen->ubicacion ?? 'Sin ubicación' }})</small>
                         </span>
-                        {{-- Mostrar cantidad 0 con color diferente --}}
+                        {{-- Mostramos cantidad 0 con color diferente --}}
                         <span class="badge rounded-pill fs-6 {{ ($almacen->pivot->cantidad ?? 0) > 0 ? 'bg-primary' : 'bg-warning text-dark' }}">
                              {{ $almacen->pivot->cantidad ?? 0 }} unidades
                         </span>
@@ -54,7 +54,7 @@
             </div>
         </div>
 
-        {{-- Proveedores Asociados y Precios de Compra    --}}
+        {{-- Proveedores Asociados y Precios de Compra --}}
         <div class="card mb-4 shadow-sm">
             <div class="card-header">
                 <h4>Proveedores Asociados y Precios de Compra</h4>

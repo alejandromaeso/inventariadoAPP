@@ -20,37 +20,30 @@ class Proveedores extends Model
         $claveForaneaOtroModelo = 'producto_id';
 
         return $this->belongsToMany(
-                Productos::class, // Modelo relacionado
+            // Modelo relacionado
+                Productos::class,
                 $nombreTablaPivote,
                 $claveForaneaEsteModelo,
                 $claveForaneaOtroModelo
             )
-            // Si añadiste columnas extra a la tabla pivote (ej: costo), añádelas aquí:
+            // Añadimos la columa "precio_proveedor" a la tabla pivote
             ->withPivot('precio_proveedor')
-            ->withTimestamps(); // Para usar created_at/updated_at de la tabla pivote
+            ->withTimestamps();
     }
 
-   /**
-     * Obtiene todos los productos asociados a este proveedor.
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
     public function obtenerProductos()
     {
-        // Ahora, al obtener los productos, cada uno tendrá accesible $producto->pivot->precio_proveedor
+        // Accemos los los productos accesibles a $producto->pivot->precio_proveedor
         return $this->productos()->with('categoria')->get();
     }
 
-     /**
-     * Cuenta cuántos productos diferentes suministra este proveedor.
-     * @return int
-     */
     public function contarProductos()
     {
         return $this->productos()->count();
     }
 
 
-     // --- GETTERS (Accesors) ---
+     // GETTERS
     public function getNombreAttribute($value)
     {
         return ucfirst($value);
@@ -61,7 +54,7 @@ class Proveedores extends Model
         return $value ? ucfirst($value) : null;
     }
 
-    // --- SETTERS (Mutators) ---
+    // SETTERS
     public function setNombreAttribute($value)
     {
         $this->attributes['nombre'] = strtolower($value);

@@ -70,4 +70,9 @@ class Almacenes extends Model
     {
         return $this->productos()->sum('productos_almacenes.cantidad');
     }
+
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
 }

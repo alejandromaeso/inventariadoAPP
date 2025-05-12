@@ -55,11 +55,3 @@ Route::middleware('auth')->group(function () {
 });
 
 
-// !!! NEW GROUP FOR ADMIN-ONLY ROUTES (REGISTRATION) !!!
-// These routes require the user to be AUTHENTICATED *AND* pass the ADMIN middleware check
-Route::middleware(['auth', 'admin'])->group(function () { // Require both 'auth' and 'admin'
-    Route::get('register', [RegisteredUserController::class, 'create'])
-                ->name('register'); // Name the route 'register'
-
-    Route::post('register', [RegisteredUserController::class, 'store']); // Handles form submission
-});

@@ -22,35 +22,37 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="{{ url('/') }}">InventariadoAPP</a>
+            <a class="navbar-brand" href="{{ url('/home') }}">InventariadoAPP</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
+                    @php
+                        $user = Auth::user();
+                    @endphp
                     {{-- Enlaces al menú principal --}}
+                    {{-- Enlace a Almacenes / Mi Almacén --}}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('almacenes.index') }}">Almacenes</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('proveedores.index') }}">Proveedores</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('categorias.index') }}">Categorías</a>
+                       {{-- Si es administrador O no tiene almacén asignado --}}
+                       @if ($user->isAdmin() || $user->almacen_id === null)
+                           {{-- Mostramos enlace a la lista completa de almacenes --}}
+                           <a class="nav-link" href="{{ route('almacenes.index') }}">Almacenes</a>
+                       @else
+                           {{-- Si NO es administrador Y tiene almacén asignado --}}
+                           {{-- Mostramos enlace a los productos de su almacén asignado --}}
+                           {{-- Usamos la ruta 'productos.by_almacen' --}}
+                           <a class="nav-link" href="{{ route('productos.indexByAlmacen', $user->almacen_id) }}">Mi Almacén</a>
+                       @endif
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('productos.index') }}">Productos</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('movimientos.index') }}">Movimientos Inventario</a>
-                    </li>
 
-                    {{-- ========================================= --}}
-                    {{-- INTEGRACIÓN BREEZE: Enlaces de Autenticación --}}
-                    {{-- ========================================= --}}
-                    @guest {{-- Si el usuario NO está autenticado --}}
-                        {{-- Mostrar Solo el enlace de Login para invitados --}}
+                    {{-- Si el usuario NO está autenticado --}}
+                    @guest
+                        {{-- Mostramos Solo el enlace de Login para invitados --}}
                         @if (Route::has('login'))
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('login') }}">Login</a>
@@ -58,28 +60,31 @@
                         @endif
                     @endguest
 
-                    {{-- Mostrar el enlace de Register SOLO si el usuario autenticado es un administrador --}}
                     @if (Auth::user()->isAdmin())
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('register') }}">Añadir Usuario</a>
+                            <a class="nav-link" href="{{ route('proveedores.index') }}">Proveedores</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('categorias.index') }}">Categorías</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('movimientos.index') }}">Movimientos Inventario</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('usuarios') }}">Usuarios</a>
                         </li>
                     @endif
 
-
-                    @auth {{-- Si el usuario SÍ está autenticado --}}
+                    {{-- Si el usuario SÍ está autenticado --}}
+                    @auth
                         {{-- Dropdown del usuario autenticado --}}
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
                                 data-bs-toggle="dropdown" aria-expanded="false">
-                                {{ Auth::user()->name }} {{-- Muestra el nombre del usuario --}}
+                                {{-- Mostramos el nombre del usuario --}}
+                                {{ Auth::user()->name }}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                {{-- Enlace al dashboard o perfil --}}
-                                <li><a class="dropdown-item" href="{{ route('dashboard') }}">Dashboard</a></li>
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
-                                {{-- Logout --}}
                                 <li>
                                     <form method="POST" action="{{ route('logout') }}">
                                         @csrf
@@ -100,7 +105,7 @@
     {{-- Contenedor principal del contenido de la página --}}
     <div class="container mt-4">
         {{-- Yield para mensajes de sesión generales --}}
-        {{-- Este bloque muestra mensajes como 'success', 'error', 'status' que pueden venir de redirects --}}
+        {{-- Aquí mostramos mensajes como 'success', 'error', 'status' que puedan venir de redirects --}}
         @if (session('status'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 {{ session('status') }}
@@ -114,7 +119,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
-        {{-- Aquí se insertará el contenido específico de cada vista (ej: productos.index, productos.show) --}}
+        {{-- Aquí se insertaremos el contenido específico de cada vista, por ejemplo productos.index, productos.show, etc... --}}
         @yield('content')
     </div>
 

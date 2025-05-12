@@ -22,12 +22,10 @@ class Kernel extends HttpKernel
      */
     protected $middlewareGroups = [
         'web' => [
-            // ... other web middleware
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
 
         'api' => [
-            // ... other api middleware
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
     ];
@@ -40,22 +38,18 @@ class Kernel extends HttpKernel
      *
      * @var array<string, class-string|string>
      */
-    protected $middlewareAliases = [ // <--- Make sure this property exists
-        //'auth' => \App\Http\Middleware\Authenticate::class,
+    protected $middlewareAliases = [
+        'auth' =>\Illuminate\Auth\Middleware\Authenticate::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,
         'can' => \Illuminate\Auth\Middleware\Authorize::class,
-        //'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+        'guest' => \Illuminate\Auth\Middleware\RedirectIfAuthenticated::class,
         'password.confirm' => \Illuminate\Auth\Middleware\RequirePassword::class,
         'precognitive' => \Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests::class,
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
 
-        // Add your custom alias here:
-        'admin' => \App\Http\Middleware\AdminMiddleware::class, // <--- Add this line
-        // Make sure the namespace \App\Http\Middleware\AdminMiddleware::class matches your actual middleware file path
+        'admin' => \App\Http\Middleware\AdminMiddleware::class,
     ];
-
-    // ... rest of the Kernel class ...
 }

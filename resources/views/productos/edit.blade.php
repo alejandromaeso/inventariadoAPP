@@ -4,18 +4,18 @@
 <div class="container">
     <h1 class="mb-4">Editar Producto: {{ $producto->nombre }}</h1>
 
-    {{-- Mostrar errores generales de validación y errores específicos --}}
+    {{-- Mostramos errores generales de validación y errores específicos --}}
     @if ($errors->any())
         <div class="alert alert-danger">
             <h6>Errores de validación:</h6>
             <ul>
                 @foreach ($errors->all() as $error)
-                    {{-- Evita duplicar mensajes de error que se mostrarán inline o ya se muestran de forma general --}}
+                    {{-- Evitamos duplicar mensajes de error que se mostrarán inline o ya se muestran de forma general --}}
                     @if (!Str::startsWith($error, ['El nombre', 'El precio de venta', 'Debes seleccionar una categoría', 'La categoría', 'Los datos de stock', 'Se requiere una cantidad', 'La cantidad', 'Los datos de precios', 'El precio del proveedor', 'Los almacenes con ID', 'Los proveedores con ID']))
                         <li>{{ $error }}</li>
                     @endif
                 @endforeach
-                 {{-- Mostrar errores de arrays que no son por elemento individual o IDs inválidos --}}
+                 {{-- Mostramos errores de arrays que no son por elemento individual o IDs inválidos --}}
                  @if ($errors->has('almacen_stock') && !Str::contains($errors->first('almacen_stock'), ['cantidad', 'ID']))
                       <li>{{ $errors->first('almacen_stock') }}</li>
                  @endif
@@ -66,7 +66,7 @@
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label for="precio" class="form-label">Precio Venta (€) <span class="text-danger">*</span></label>
-                        {{-- El error de precio vs proveedor precio se mostrará aquí --}}
+                        {{-- El error de precio vs proveedor precio lo mostraremos aquí --}}
                         <input type="number" step="0.01" min="0" name="precio" id="precio" class="form-control @error('precio') is-invalid @enderror" value="{{ old('precio', $producto->precio) }}" required placeholder="Precio de venta al público">
                         @error('precio')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -150,7 +150,7 @@
             <div class="card-header">Proveedores y Precios de Compra</div>
             <div class="card-body">
 
-                {{-- Muestra errores generales relacionados con proveedor_precio si existen y no son por elemento individual o ID --}}
+                {{-- Mostramos errores generales relacionados con proveedor_precio si existen y no son por elemento individual o ID --}}
                 @error('proveedor_precio')
                     @if (!Str::contains($message, ['numérico', 'ID']))
                         <div class="text-danger d-block mb-2 small">{{ $message }}</div>
@@ -160,8 +160,7 @@
                 @if($proveedores->isEmpty())
                     <p class="text-warning">No hay proveedores registrados en el sistema.</p>
                 @else
-                     {{-- Preparar datos de precios actuales para fácil acceso (ya lo hace el controller) --}}
-                     {{-- $preciosProveedoresActuales = $producto->proveedores->pluck('pivot.precio_proveedor', 'id'); --}}
+                     {{-- Preparamos los datos de precios actuales para acceder, esto nos lo hace ya el controller --}}
                     <div class="border p-3 rounded mb-3">
                         @forelse($proveedores as $proveedor)
                             <div class="row align-items-center mb-2">
@@ -178,7 +177,7 @@
                                                 {{-- Nombre del array esperado por el controlador --}}
                                                 name="proveedor_precio[{{ $proveedor->id }}]"
                                                 id="proveedor_precio_{{ $proveedor->id }}"
-                                                {{-- Recuperar valor anterior si falla validación, O el precio actual del proveedor --}}
+                                                {{-- Recuperamos el valor anterior si falla la validación, O el precio actual del proveedor --}}
                                                 value="{{ old('proveedor_precio.' . $proveedor->id, $preciosProveedoresActuales->get($proveedor->id)) }}"
                                                 min="0"
                                                 step="0.01"
@@ -221,7 +220,7 @@
 {{-- CSS para mejorar alineación --}}
 @push('styles')
 <style>
-    /* Ajuste para que el feedback de validación de inputs con input-group se muestre correctamente */
+    /* Ajustamos para que el feedback de validación de inputs con input-group se muestre correctamente */
     .input-group .invalid-feedback {
         /* Aseguramos que ocupe el ancho completo de la columna si es necesario */
         width: 100%;
